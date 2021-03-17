@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Core\Shopping.Order.Core\Fulfillment.Core.csproj" />
+    <ProjectReference Include="..\ShoppingPlace.Infrastructure\Infrastructure.csproj" />
+  </ItemGroup>
+
+</Project>
