@@ -1,5 +1,7 @@
 ﻿using Catalog.Core.Entities;
 using Core.Interfaces;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Catalog.Core.Services
@@ -27,6 +29,13 @@ namespace Catalog.Core.Services
         public Property GetPropertyByPropertyType(PropertyType propertyType)
         {
             return _propertyRepository.Find(x => x.Type.Name == propertyType.Name && x.IsDeleted == false).SingleOrDefault();
+        }
+
+        public List<Property> CreateProperties(List<Property> properties)
+        {
+            properties.ForEach(p => _propertyRepository.Insert(p));
+            _propertyRepository.SaveChanges();
+            return properties;
         }
 
         #endregion

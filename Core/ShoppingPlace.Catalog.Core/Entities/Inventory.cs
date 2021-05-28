@@ -5,7 +5,8 @@ namespace Catalog.Core.Entities
 {
     public class Inventory : BaseEntity
     {
-        [ForeignKey("ProductId")]
+        [ForeignKey("Product")]
+        public int ProductId { get; set; }
         public virtual Product Product { get; set; }
         public decimal SaleableQuantity { get; set; }
         public decimal SoldQuantity { get; set; }

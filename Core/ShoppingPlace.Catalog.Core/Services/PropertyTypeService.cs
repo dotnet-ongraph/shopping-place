@@ -39,6 +39,7 @@ namespace Catalog.Core.Services
         public PropertyType CreatePropertyType(PropertyType propertyType)
         {
             _propertyTypeRepository.Insert(propertyType);
+            _propertyTypeRepository.SaveChanges();
             return propertyType;
         }
 

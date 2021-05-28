@@ -3,7 +3,9 @@ using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using Catalog.Core.Entities;
 using Catalog.Core.Services;
+using Microsoft.AspNetCore.Authorization;
 using System;
+using System.Linq;
 
 namespace ShoppingPlace.Controllers
 {
@@ -15,15 +17,19 @@ namespace ShoppingPlace.Controllers
 
         private readonly ILogger<ProductController> _logger;
         private readonly ProductService _productService;
-        private readonly PropertyTypeService _propertyTypeService;
-        private readonly PropertyService _propertyService;
+        private readonly ProductTypeService _productTypeService;
+        private readonly ImageService _imageService;
+
 
         #endregion
 
-        public ProductController(ILogger<ProductController> logger, ProductService productService)
+        public ProductController(ILogger<ProductController> logger, ProductService productService,
+            ProductTypeService productTypeService,ImageService imageService)
         {
             _logger = logger;
             _productService = productService;
+            _productTypeService = productTypeService;
+            _imageService = imageService;
         }
 
         /// <summary>
@@ -32,7 +38,7 @@ namespace ShoppingPlace.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("products")]
-        public IEnumerable<Product> GetAll()
+        public IEnumerable<Product> GetAllProducts()
         {
             try
             {
@@ -66,7 +72,7 @@ namespace ShoppingPlace.Controllers
                 throw new Exception(ex.Message.ToString());
             }
         }
-
+       
         /// <summary>
         /// Create a new product
         /// </summary>
@@ -85,41 +91,151 @@ namespace ShoppingPlace.Controllers
             }
         }
 
+        /*
+       /// <summary>
+       /// Get products by type
+       /// </summary>
+       /// <param name="type">type</param>
+       /// <returns>products by type</returns>
+       [HttpGet]
+       [Route("{type}")]
+       public IActionResult GetProductsByType(string productType)
+       {
+           try
+           {
+               if (string.IsNullOrEmpty(productType))
+                   throw new Exception("Type can't be empty");
+               return Ok(_productService.GetAllProductsByProductType(productType));
+           }
+           catch (Exception ex)
+           {
+               throw new Exception(ex.Message.ToString());
+           }
+       }
+
+       /// <summary>
+       /// get product by sku
+       /// </summary>
+       /// <param name="productSku">sku</param>
+       /// <returns>product bt sku</returns>
+       [HttpGet]
+       [Route("{product-sku}")]
+       public IActionResult GetProductBySku(string productSku)
+       {
+           try
+           {
+               var product = _productService.GetProductBySku(productSku);
+               if (product == null)
+                   return NoContent();
+               return Ok(product);
+           }
+           catch (Exception ex)
+           {
+               ModelState.AddModelError("error", ex.Message);
+               return BadRequest(ModelState);
+           }
+       }
+       /// <summary>
+       /// Get all propertytypes
+       /// </summary>
+       /// <returns></returns>
+       [HttpGet]
+       [Route("property-types")]
+       public IActionResult GetAllPropertyType()
+       {
+           try
+           {
+               var propertyTypes = _propertyTypeService.GetAllPropertyType();
+               if (propertyTypes == null)
+                   return NoContent();
+               return Ok(propertyTypes);
+           }
+           catch (Exception ex)
+           {
+               ModelState.AddModelError("error", ex.Message);
+               return BadRequest(ModelState);
+           }
+       }
+
+       [HttpGet]
+       [Route("create/property-type")]
+       public IActionResult CreatePropertyType(PropertyType propertyType)
+       {
+           try
+           {
+               var createPropertyTypes = _propertyTypeService.CreatePropertyType(propertyType);
+               if (createPropertyTypes == null)
+                   return NoContent();
+               return Ok(createPropertyTypes);
+           }
+           catch (Exception ex)
+           {
+               ModelState.AddModelError("error", ex.Message);
+               return BadRequest(ModelState);
+           }
+       }
+
+       /// <summary>
+       /// Get property by property type
+       /// </summary>
+       /// <param name="propertyType">PropertyType</param>
+       /// <returns></returns>
+       [HttpGet]
+       [Route("property-type")]
+       public IActionResult GetPropertyByPropertyType(PropertyType propertyType)
+       {
+           try
+           {
+               var properyType = _propertyService.GetPropertyByPropertyType(propertyType);
+               if (properyType == null)
+                   return NoContent();
+               return Ok(properyType);
+           }
+           catch (Exception ex)
+           {
+               ModelState.AddModelError("error", ex.Message);
+               return BadRequest(ModelState);
+           }
+       }
+       */
+
         /// <summary>
-        /// Get products by type
+        /// Get ProductType by category
         /// </summary>
-        /// <param name="type">type</param>
-        /// <returns>products by type</returns>
+        /// <param name="CategoryId"></param>
+        /// <returns>productType list</returns>
         [HttpGet]
-        [Route("{type}")]
-        public IActionResult GetProductsByType(string productType)
+        [Route("product-types/{categoryId}")]
+        public IActionResult GetProductTypeByCategory(int CategoryId)
         {
             try
             {
-                if (string.IsNullOrEmpty(productType))
-                    throw new Exception("Type can't be empty");
-                return Ok(_productService.GetAllProductsByProductType(productType));
+                var productTypes = _productTypeService.GetProductTypeByCategory(CategoryId);
+                var productTypesIds = productTypes.Select(x => x.Id).ToList();
+                var images = _imageService.GetImagesByEntityIds(productTypesIds, EntityType.ProductType);
+                productTypes.ForEach(x => x.Images = images.Where(t => t.EntityId == x.Id).ToList());
+                if (productTypes == null)
+                    return NoContent();
+                return Ok(productTypes);
             }
             catch (Exception ex)
             {
-                throw new Exception(ex.Message.ToString());
+                ModelState.AddModelError("error", ex.Message);
+                return BadRequest(ModelState);
             }
         }
 
-        /// <summary>
-        /// get product by sku
-        /// </summary>
-        /// <param name="productSku">sku</param>
-        /// <returns>product bt sku</returns>
         [HttpGet]
-        [Route("{product-sku}")]
-        public IActionResult GetProductBySku(string productSku)
+        [Route("product-type/{producttypeId:int}")]
+        public IActionResult GetProductByProdcutTypeId(int producttypeId)
         {
             try
             {
-                var product = _productService.GetProductBySku(productSku);
+                var product = _productService.GetProductByProductTypeId(producttypeId);
                 if (product == null)
                     return NoContent();
+                var images = _imageService.GetImagesByEntityId(product.Type.Id,EntityType.Product);
+                product.Images = images;
                 return Ok(product);
             }
             catch (Exception ex)
@@ -128,67 +244,6 @@ namespace ShoppingPlace.Controllers
                 return BadRequest(ModelState);
             }
         }
-        /// <summary>
-        /// Get all propertytypes
-        /// </summary>
-        /// <returns></returns>
-        [HttpGet]
-        [Route("property-types")]
-        public IActionResult GetAllPropertyType()
-        {
-            try
-            {
-                var propertyTypes = _propertyTypeService.GetAllPropertyType();
-                if (propertyTypes == null)
-                    return NoContent();
-                return Ok(propertyTypes);
-            }
-            catch (Exception ex)
-            {
-                ModelState.AddModelError("error", ex.Message);
-                return BadRequest(ModelState);
-            }
-        }
 
-        [HttpGet]
-        [Route("create/property-type")]
-        public IActionResult CreatePropertyType(PropertyType propertyType)
-        {
-            try
-            {
-                var createPropertyTypes = _propertyTypeService.CreatePropertyType(propertyType);
-                if (createPropertyTypes == null)
-                    return NoContent();
-                return Ok(createPropertyTypes);
-            }
-            catch (Exception ex)
-            {
-                ModelState.AddModelError("error", ex.Message);
-                return BadRequest(ModelState);
-            }
-        }
-
-        /// <summary>
-        /// Get property by property type
-        /// </summary>
-        /// <param name="propertyType">PropertyType</param>
-        /// <returns></returns>
-        [HttpGet]
-        [Route("property-type")]
-        public IActionResult GetPropertyByPropertyType(PropertyType propertyType)
-        {
-            try
-            {
-                var properyType = _propertyService.GetPropertyByPropertyType(propertyType);
-                if (properyType == null)
-                    return NoContent();
-                return Ok(properyType);
-            }
-            catch (Exception ex)
-            {
-                ModelState.AddModelError("error", ex.Message);
-                return BadRequest(ModelState);
-            }
-        }
     }
 }

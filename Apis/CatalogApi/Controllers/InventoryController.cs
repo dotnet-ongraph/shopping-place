@@ -31,9 +31,9 @@ namespace CatalogApi.Controllers
         {
             try
             {
-                return Ok( _inventoryService.GetProductStock(productId));
+                return Ok(_inventoryService.GetProductStock(productId));
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw new Exception(ex.Message.ToString());
             }

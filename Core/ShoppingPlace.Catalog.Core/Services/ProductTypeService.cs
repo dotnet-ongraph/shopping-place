@@ -26,6 +26,7 @@ namespace Catalog.Core.Services
         public ProductType CreateProductType(ProductType productType)
         {
             _productTypeRepository.Insert(productType);
+            _productTypeRepository.SaveChanges();
             return productType;
         }
 
@@ -34,5 +35,14 @@ namespace Catalog.Core.Services
             return _productTypeRepository.Get(id);
         }
 
+        public List<ProductType> GetProductTypeByCategory(int categoryId)
+        {
+            return _productTypeRepository.Find(x => x.Category.Id == categoryId).ToList();
+        }
+
+        public ProductType GetProductTypeById(int producttypeId)
+        {
+            return _productTypeRepository.Find(x => x.Id == producttypeId).SingleOrDefault();
+        }
     }
 }

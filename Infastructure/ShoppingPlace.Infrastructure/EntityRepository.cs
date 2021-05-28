@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Threading.Tasks;
 
 namespace Infrastructure
 {
@@ -61,7 +60,7 @@ namespace Infrastructure
                 throw new ArgumentNullException("entity");
             }
             _context.Add(entity);
-            SaveChanges();
+            //SaveChanges();
         }
 
         public void SaveChanges()
@@ -79,10 +78,19 @@ namespace Infrastructure
         }
 
 
-        public IEnumerable<TEntity> Find(Expression<Func<TEntity, bool>> expression)
+        public IQueryable<TEntity> Find(Expression<Func<TEntity, bool>> expression, List<string> includeProperties = null)
         {
-            return _context.Set<TEntity>().Where(expression);
+            IQueryable<TEntity> query = null;
+            foreach (var property in includeProperties)
+            {
+                if (property.Length == 0)
+                    continue;
+                if (query == null)
+                    query = _context.Set<TEntity>().Where(expression).Include(property);
+                else
+                    query = query.Include(property);
+            }
+            return query.Where(i => i.IsDeleted == false);
         }
-
     }
 }

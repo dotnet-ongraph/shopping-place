@@ -1,5 +1,6 @@
 ﻿using Catalog.Core.Entities;
 using Core.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -38,6 +39,7 @@ namespace Catalog.Core.Services
         public Product CreateProduct(Product product)
         {
             _productRepository.Insert(product);
+            _productRepository.SaveChanges();
             return product;
         }
 
@@ -48,7 +50,7 @@ namespace Catalog.Core.Services
         /// <returns>Product</returns>
         public Product GetProduct(int id)
         {
-            return _productRepository.Get(id);
+            return _productRepository.Find(f=>f.Id == id, new List<string> { "Properties", "Type.Properties" }).FirstOrDefault();
         }
 
         /// <summary>
@@ -58,7 +60,7 @@ namespace Catalog.Core.Services
         /// <returns>products</returns>
         public List<Product> GetAllProductsByProductType(string type)
         {
-            return _productRepository.Find(x => x.Type.ToString() == type && x.IsDeleted==false).ToList();
+            return _productRepository.Find(x => x.Type.ToString() == type && x.IsDeleted == false).ToList();
         }
 
         /// <summary>
@@ -68,7 +70,12 @@ namespace Catalog.Core.Services
         /// <returns>Sku's product</returns>
         public Product GetProductBySku(string sku)
         {
-            return _productRepository.Find(x => x.Sku == sku && x.IsDeleted==false).SingleOrDefault();
+            return _productRepository.Find(x => x.Sku == sku && x.IsDeleted == false).SingleOrDefault();
+        }
+
+        public Product GetProductByProductTypeId(int producttypeId)
+        {
+            return _productRepository.Find(x => x.Type.Id == producttypeId, new List<string> { "Type" }).SingleOrDefault();
         }
 
         #endregion

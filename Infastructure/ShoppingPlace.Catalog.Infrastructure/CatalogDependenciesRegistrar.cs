@@ -3,28 +3,37 @@ using Microsoft.Extensions.DependencyInjection;
 using Catalog.Core.Services;
 using Core.Interfaces;
 using Infrastructure;
+using Microsoft.Extensions.Configuration;
+using Infrastructure.Filters;
+using Catalog.Core.Entities;
 
 namespace Catalog.Infrastructure
 {
     public class CatalogDependenciesRegistrar
     {
-        public void RegisterDependencies(IServiceCollection services)
+        public void RegisterDependencies(IServiceCollection services, IConfiguration configuration)
         {
-            services.AddDbContext<CatalogDbContext>(options => options.UseSqlServer("Data Source=101.53.156.73,1434;Initial Catalog=ShoppingPlace;User Id=dbuser;Password=Ongraph@123;Integrated Security=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False;Trusted_connection=false;")); services.AddScoped<CatalogDbContext>();
-            services.AddScoped(typeof(IEntityRepository<Catalog.Core.Entities.Product>), typeof(EntityRepository<Catalog.Core.Entities.Product, CatalogDbContext>));
+            services.AddDbContext<CatalogDbContext>(options => options.UseSqlServer(configuration["ConnectionStrings:CatalogDb"]));
+            services.AddScoped<CatalogDbContext>();
+            services.AddScoped(typeof(IEntityRepository<Product>), typeof(EntityRepository<Product, CatalogDbContext>));
             services.AddScoped<ProductService>();
-            services.AddScoped(typeof(IEntityRepository<Catalog.Core.Entities.Category>), typeof(EntityRepository<Catalog.Core.Entities.Category, CatalogDbContext>));
+            services.AddScoped(typeof(IEntityRepository<Category>), typeof(EntityRepository<Category, CatalogDbContext>));
             services.AddScoped<CategoryService>();
-            services.AddScoped(typeof(IEntityRepository<Catalog.Core.Entities.ProductType>), typeof(EntityRepository<Catalog.Core.Entities.ProductType, CatalogDbContext>));
+            services.AddScoped(typeof(IEntityRepository<ProductType>), typeof(EntityRepository<ProductType, CatalogDbContext>));
             services.AddScoped<ProductTypeService>();
-            services.AddScoped(typeof(IEntityRepository<Catalog.Core.Entities.Inventory>), typeof(EntityRepository<Catalog.Core.Entities.Inventory, CatalogDbContext>));
+            services.AddScoped(typeof(IEntityRepository<Inventory>), typeof(EntityRepository<Inventory, CatalogDbContext>));
             services.AddScoped<InventoryService>();
-            services.AddScoped(typeof(IEntityRepository<Catalog.Core.Entities.Image>), typeof(EntityRepository<Catalog.Core.Entities.Image, CatalogDbContext>));
+            services.AddScoped(typeof(IEntityRepository<Image>), typeof(EntityRepository<Image, CatalogDbContext>));
             services.AddScoped<ImageService>();
-            services.AddScoped(typeof(IEntityRepository<Catalog.Core.Entities.PropertyType>), typeof(EntityRepository<Catalog.Core.Entities.PropertyType, CatalogDbContext>));
+            services.AddScoped(typeof(IEntityRepository<PropertyType>), typeof(EntityRepository<PropertyType, CatalogDbContext>));
             services.AddScoped<PropertyTypeService>();
-            services.AddScoped(typeof(IEntityRepository<Catalog.Core.Entities.Property>), typeof(EntityRepository<Catalog.Core.Entities.Property, CatalogDbContext>));
+            services.AddScoped(typeof(IEntityRepository<Property>), typeof(EntityRepository<Property, CatalogDbContext>));
             services.AddScoped<PropertyService>();
+
+            services.AddScoped<ValidateEntityExistAttribute<Category>>();
+
+            services.AddScoped<IWriteEntityRepository, DapperRepository>();
+            services.AddScoped<IReadEntityRepository, DapperRepository>();
         }
     }
 }

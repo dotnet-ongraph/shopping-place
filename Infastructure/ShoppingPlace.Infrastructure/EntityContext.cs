@@ -10,12 +10,42 @@ namespace Infrastructure
     public class EntityContext : DbContext, IEntityContext
     {
 
-        public EntityContext(DbContextOptions dbContextOptions) : base(dbContextOptions)
+        private readonly IReadEntityRepository _readRepository;
+        private readonly IWriteEntityRepository _writeRepository;
+        public EntityContext(DbContextOptions dbContextOptions, IReadEntityRepository readRepository, IWriteEntityRepository writeRepository) : base(dbContextOptions)
         {
+            this._readRepository = readRepository;
+            this._writeRepository = writeRepository;
+        }
+        public IReadEntityRepository ReadRepository => _readRepository;
 
+        public IWriteEntityRepository WriteRepository => _writeRepository;
+        public string _connectionString { get; }
+
+        private ContextName _name;
+        public ContextName Name
+        {
+            get => _name;
+            protected set
+            {
+                _name = value;
+                _readRepository.SetReadConnectionString(_name);
+                _writeRepository.SetWriteConnectionString(_name);
+            }
+        }
+        public override int SaveChanges()
+        {
+            SetBaseEntities();
+            return base.SaveChanges();
         }
 
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        {
+            SetBaseEntities();
+            return base.SaveChangesAsync(cancellationToken);
+        }
+
+        private void SetBaseEntities()
         {
             foreach (var entity in ChangeTracker.Entries<BaseEntity>())
             {
@@ -32,7 +62,6 @@ namespace Infrastructure
                     entity.Entity.LastModified = DateTime.Now;
                 }
             }
-            return base.SaveChangesAsync(cancellationToken);
         }
     }
 }

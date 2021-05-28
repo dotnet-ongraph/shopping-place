@@ -18,6 +18,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Core\ShoppingPlace.Catalog.Core\Catalog.Core.csproj" />
+    <ProjectReference Include="..\..\Infastructure\ShoppingPlace.Authentication\Authentication.csproj" />
     <ProjectReference Include="..\..\Infastructure\ShoppingPlace.Catalog.Infrastructure\Catalog.Infrastructure.csproj" />
   </ItemGroup>
 

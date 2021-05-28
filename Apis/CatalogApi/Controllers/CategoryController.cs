@@ -1,12 +1,16 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Catalog.Core.Services;
 using System;
-
+using Catalog.Core.Entities;
+using System.Collections.Generic;
+using Microsoft.AspNetCore.Authorization;
+using Infrastructure.Filters;
 
 namespace CatalogApi.Controllers
 {
     [Route("category")]
     [ApiController]
+    [Authorize]
     public class CategoryController : ControllerBase
     {
         #region Private Fields
@@ -28,11 +32,31 @@ namespace CatalogApi.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("categories")]
-        public IActionResult GetAll()
+        public List<Category> GetAll()
+        {
+            try 
+            {
+                var categories =_categoryService.GetAllCategories();
+                return categories;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message.ToString());
+            }
+        }
+
+        /// <summary>
+        /// Create a new category
+        /// </summary>
+        /// <param name="category">Category</param>
+        /// <returns></returns>
+        [HttpPost("create")]
+        [ServiceFilter(typeof(GlobalModelValidator))]
+        public IActionResult Create([FromBody] Category category)
         {
             try
             {
-                return  Ok(_categoryService.GetAllCategories());
+                return Ok(_categoryService.CreateCategory(category));
             }
             catch (Exception ex)
             {
@@ -46,18 +70,24 @@ namespace CatalogApi.Controllers
         /// <param name="id">CategoriesId</param>
         /// <returns></returns>
         [HttpGet]
-        [Route("{id}")]
+        [ServiceFilter(typeof(ValidateEntityExistAttribute<Category>))]
+        [Route("{id:int}")]
         public IActionResult Get(int id)
         {
-            try
-            {
-                return Ok(_categoryService.GetCategory(id));
-            }
-            catch(Exception ex)
-            {
-                throw new Exception(ex.Message.ToString());
-            }
+            var category = HttpContext.Items["entity"] as Category;
+            return Ok(category);
         }
+
+        [HttpPut("{id}")]
+        [ServiceFilter(typeof(GlobalModelValidator), Order = 1)]
+        [ServiceFilter(typeof(ValidateEntityExistAttribute<Category>), Order = 2)]
+        public IActionResult Put(int id, [FromBody] Category category)
+        {
+            var existingCategory = HttpContext.Items["entity"] as Category;
+            _categoryService.UpdateEntity(category, existingCategory);
+            return Ok(existingCategory);
+        }
+
 
         /// <summary>
         /// Get category

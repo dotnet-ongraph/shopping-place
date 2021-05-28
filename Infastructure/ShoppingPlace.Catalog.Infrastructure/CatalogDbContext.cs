@@ -1,17 +1,19 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Catalog.Core.Entities;
 using Infrastructure;
+using Core.Interfaces;
 
 namespace Catalog.Infrastructure
 {
     public class CatalogDbContext : EntityContext
     {
-        public CatalogDbContext(DbContextOptions<CatalogDbContext> dbContextOptions) : base(dbContextOptions)
-        {
-
+        public CatalogDbContext(DbContextOptions<CatalogDbContext> dbContextOptions, IReadEntityRepository readEntityRepository,
+                                    IWriteEntityRepository writeEntityRepository) : base(dbContextOptions, readEntityRepository, writeEntityRepository)
+        {   
+            this.Name = ContextName.ConnStr;
         }
 
-        public DbSet<Catalog.Core.Entities.Product> Products { get; set; }
+        public DbSet<Product> Products { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<Image> Images { get; set; }
         public DbSet<Inventory> Inventories { get; set; }
@@ -22,7 +24,7 @@ namespace Catalog.Infrastructure
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.HasDefaultSchema("product");
+            modelBuilder.HasDefaultSchema("catalog");
             base.OnModelCreating(modelBuilder);
         }
     }
