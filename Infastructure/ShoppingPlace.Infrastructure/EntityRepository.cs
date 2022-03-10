@@ -59,6 +59,7 @@ namespace Infrastructure
             {
                 throw new ArgumentNullException("entity");
             }
+            
             _context.Add(entity);
             //SaveChanges();
         }
@@ -91,6 +92,16 @@ namespace Infrastructure
                     query = query.Include(property);
             }
             return query.Where(i => i.IsDeleted == false);
+        }
+
+        public void Insert(List<TEntity> entity)
+        {
+            if (entity == null)
+            {
+                throw new ArgumentNullException("entity");
+            }
+
+            _context.Add(entity);
         }
     }
 }

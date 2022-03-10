@@ -48,7 +48,12 @@ namespace Catalog.Core.Services
             _categoryRepository.SaveChanges();
             return category;
         }
-
+        public List<Category> CreateMultipleCategories(List<Category> categories)
+        {
+            _categoryRepository.Insert(categories);
+            _categoryRepository.SaveChanges();
+            return categories;
+        }
         public void UpdateEntity(Category category, Category existingCategory)
         {
             existingCategory.IsDeleted = category.IsDeleted;

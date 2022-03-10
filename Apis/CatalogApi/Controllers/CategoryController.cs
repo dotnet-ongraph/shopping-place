@@ -64,6 +64,20 @@ namespace CatalogApi.Controllers
             }
         }
 
+        [HttpPost("createMultipleCategories")]
+        [ServiceFilter(typeof(GlobalModelValidator))]
+        public IActionResult CreateMultipleCategories([FromBody] List<Category> categories)
+        {
+            try
+            {
+                return Ok(_categoryService.CreateMultipleCategories(categories));
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message.ToString());
+            }
+        }
+
         /// <summary>
         /// Get category by id
         /// </summary>
@@ -87,6 +101,25 @@ namespace CatalogApi.Controllers
             _categoryService.UpdateEntity(category, existingCategory);
             return Ok(existingCategory);
         }
+        
+        //[HttpGet]
+        //[ServiceFilter(typeof(ValidateEntityExistAttribute<Category>))]
+        //[Route("{id:int}")]
+        //public IActionResult GetCategoryProducts(int id)
+        //{
+            
+        //    //try
+        //    //{
+        //    //    var data = _categoryService.GetCategoryProducts(id);
+        //    //    if (data == null)
+        //    //        return NoContent();
+        //    //    return Ok(data);
+        //    //}
+        //    //catch (Exception ex)
+        //    //{
+        //    //    throw new Exception(ex.Message.ToString());
+        //    }
+        //}
 
 
         /// <summary>

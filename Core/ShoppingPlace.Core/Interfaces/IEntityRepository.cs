@@ -10,6 +10,8 @@ namespace Core.Interfaces
     {
         void Insert(T entity);
 
+        void Insert(List<T> entity);
+
         void Update(T entity);
 
         void Delete(T entity);
