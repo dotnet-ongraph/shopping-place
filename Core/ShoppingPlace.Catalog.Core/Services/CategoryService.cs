@@ -13,11 +13,15 @@ namespace Catalog.Core.Services
     public class CategoryService
     {
         private readonly IEntityRepository<Category> _categoryRepository;
+        private readonly ProductService _productService;
+        private readonly ProductTypeService _productTypeService;
         private IWriteEntityRepository _writeEntityRepository;
 
-        public CategoryService(IEntityRepository<Category> categoryRepository, IWriteEntityRepository writeEntityRepository)
+        public CategoryService(IEntityRepository<Category> categoryRepository, ProductService propertyService, ProductTypeService productTypeService, IWriteEntityRepository writeEntityRepository)
         {
             _categoryRepository = categoryRepository;
+            _productService = propertyService;
+            _productTypeService = productTypeService;
             _writeEntityRepository = writeEntityRepository;
         }
 
@@ -40,6 +44,13 @@ namespace Catalog.Core.Services
         public Category GetCategoryByName(string categoryName)
         {
             return _categoryRepository.Find(x => x.Name == categoryName && x.IsDeleted==false).SingleOrDefault();
+        }
+
+        public List<Product> GetCategoryProducts(int id)
+        {
+            var productType = _productTypeService.GetProductTypeByCategory(id);
+            var products = _productService.GetAllProductsByProductType(productType);
+            return products;
         }
 
         public Category CreateCategory(Category category)

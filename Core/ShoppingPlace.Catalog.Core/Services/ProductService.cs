@@ -58,9 +58,17 @@ namespace Catalog.Core.Services
         /// </summary>
         /// <param name="type">producttype</param>
         /// <returns>products</returns>
+        /// 
+
+     
         public List<Product> GetAllProductsByProductType(string type)
         {
             return _productRepository.Find(x => x.Type.ToString() == type && x.IsDeleted == false).ToList();
+        }
+
+        public List<Product> GetAllProductsByProductType(List<ProductType> type)
+        {
+            return _productRepository.Find(x => type.Contains(x.Type) && x.IsDeleted == false).ToList();
         }
 
         /// <summary>

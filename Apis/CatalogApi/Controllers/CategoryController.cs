@@ -92,6 +92,16 @@ namespace CatalogApi.Controllers
             return Ok(category);
         }
 
+
+        //[HttpGet]
+        //[ServiceFilter(typeof(ValidateEntityExistAttribute<Category>))]
+        //[Route("{id:int}")]
+        //public IActionResult GetCategoryById(int id)
+        //{
+        //    var category = _categoryService.GetCategory(id);
+        //    return Ok(category);
+        //}
+
         [HttpPut("{id}")]
         [ServiceFilter(typeof(GlobalModelValidator), Order = 1)]
         [ServiceFilter(typeof(ValidateEntityExistAttribute<Category>), Order = 2)]
@@ -101,33 +111,33 @@ namespace CatalogApi.Controllers
             _categoryService.UpdateEntity(category, existingCategory);
             return Ok(existingCategory);
         }
-        
-        //[HttpGet]
-        //[ServiceFilter(typeof(ValidateEntityExistAttribute<Category>))]
-        //[Route("{id:int}")]
-        //public IActionResult GetCategoryProducts(int id)
-        //{
-            
-        //    //try
-        //    //{
-        //    //    var data = _categoryService.GetCategoryProducts(id);
-        //    //    if (data == null)
-        //    //        return NoContent();
-        //    //    return Ok(data);
-        //    //}
-        //    //catch (Exception ex)
-        //    //{
-        //    //    throw new Exception(ex.Message.ToString());
-        //    }
-        //}
 
-
-        /// <summary>
-        /// Get category
-        /// </summary>
-        /// <param name="categoryName">categoryname</param>
-        /// <returns><category/returns>
         [HttpGet]
+        [ServiceFilter(typeof(ValidateEntityExistAttribute<Category>))]
+        [Route("getCategoryProducts/{id:int}")]
+        public IActionResult GetCategoryProducts(int id)
+        {
+
+            try
+            {
+                var data = _categoryService.GetCategoryProducts(id);
+                if (data == null)
+                    return NoContent();
+                return Ok(data);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message.ToString());
+            }
+    }
+
+
+    /// <summary>
+    /// Get category
+    /// </summary>
+    /// <param name="categoryName">categoryname</param>
+    /// <returns><category/returns>
+    [HttpGet]
         [Route("{categoryName}")]
         public IActionResult GetCategoryByName(string categoryName)
         {
